@@ -15,12 +15,29 @@ cv2.createTrackbar("LV", "Tracking", 0, 255, nothing)
 cv2.createTrackbar("UH", "Tracking", 92, 255, nothing)
 cv2.createTrackbar("US", "Tracking", 255, 255, nothing)
 cv2.createTrackbar("UV", "Tracking", 255, 255, nothing)'''
-x = 0
-  
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+import time
+import os
 
-while (x<30):
-    apples = cv2.imread('Pictures/'+str(x)+'.png')
-    hsv_img = cv2.cvtColor(apples, cv2.COLOR_BGR2HSV)
+os.system('sudo modprobe bcm2835-v4l2')
+cap = cv2.VideoCapture(0) 
+cap.set(3, 480) #sirka videa 
+
+cap.set(4, 320) #vyska videa 
+cap.read() #adjustace svetla
+
+while(True): 
+    ret, frame = cap.read()
+    
+    #cv2.imshow('frame',frame)
+    
+   # apples = cv2.imread('frame')
+
+
+    #apples = cv2.imread('Pictures/'+str(x)+'.png')
+    hsv_img = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
     # Green Mask
     lower1 = np.array([0, 22, 0], dtype="uint8")
@@ -36,7 +53,7 @@ while (x<30):
     hsv_mask2 = cv2.bitwise_not(hsv_mask2)
     # Combine Green + Red Mask
     combineMask = hsv_mask1 + hsv_mask2
-    result = cv2.bitwise_and(apples, apples, mask=combineMask)
+    result = cv2.bitwise_and(frame, frame, mask=combineMask)
     img = cv2.cvtColor(result, cv2.COLOR_HSV2BGR)
 
     # Filter apply
@@ -52,16 +69,16 @@ while (x<30):
     count = 0
 
     for i in circles[0,:]:
-        cv2.circle(apples,(i[0],i[1]),i[2],(0,255,0),6)
-        cv2.circle(apples, (i[0], i[1]), 2, (0, 0, 255), 2)
+        cv2.circle(frame,(i[0],i[1]),i[2],(0,255,0),6)
+        cv2.circle(frame, (i[0], i[1]), 2, (0, 0, 255), 2)
         count +=1
 
     # Apple counting
     print ("This image contains", count, "apples")
-    cv2.imshow("apples", apples)
+    cv2.imshow("apples", frame)
     cv2.waitKey(5000)
     cv2.destroyAllWindows()
-    x += 1
+    
 
 
 
